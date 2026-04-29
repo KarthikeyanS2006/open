@@ -14,19 +14,20 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # 1. Completely disable LFS for this push session
-          git config --global lfs.allowincompletepush true
-          git lfs uninstall
+          # 1. Setup temporary workspace
+          mkdir temp_sync
+          cp app.py elite_bridge.py requirements.txt temp_sync/ || true
+          cd temp_sync
           
-          # 2. Force delete the file from the local sync environment
-          git rm --cached mythos_junior_hacker.pth || true
-          
-          # 3. Configure Git Identity
+          # 2. Initialize a BRAND NEW git repo (No history, no LFS)
+          git init
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 4. Commit the change locally (it won't affect your main GitHub repo)
-          git commit -m "Cleanup for HF Sync" || true
+          # 3. Add only the necessary code files
+          git add app.py elite_bridge.py requirements.txt
+          git commit -m "Clean deployment to Hugging Face"
           
-          # 5. Push using standard Git, bypassing the LFS check
+          # 4. Force push this 'clean' version to HF
+          # This replaces the HF history with a history that has NO LFS files
           git push --force https://KarthikeyanS2006:$HF_TOKEN@huggingface.co/spaces/KarthikeyanS2006/OpenMythos-Guardian main
