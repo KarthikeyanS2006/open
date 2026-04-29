@@ -1,0 +1,13 @@
+name: Sync to Hugging Face Hub
+on:
+  push:
+    branches: [main]
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Push to hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: git push --force https://KarthikeyanS2006:$HF_TOKEN@huggingface.co/spaces/KarthikeyanS2006/OpenMythos-Guardian main
