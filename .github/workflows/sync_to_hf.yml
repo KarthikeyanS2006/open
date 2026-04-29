@@ -19,15 +19,17 @@ jobs:
           cp app.py elite_bridge.py requirements.txt temp_sync/ || true
           cd temp_sync
           
-          # 2. Initialize a BRAND NEW git repo (No history, no LFS)
+          # 2. Initialize a BRAND NEW git repo
           git init
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 3. Add only the necessary code files
-          git add app.py elite_bridge.py requirements.txt
-          git commit -m "Clean deployment to Hugging Face"
+          # 3. Rename branch to 'main' (THIS FIXES THE ERROR)
+          git branch -M main
           
-          # 4. Force push this 'clean' version to HF
-          # This replaces the HF history with a history that has NO LFS files
+          # 4. Add only the code files
+          git add app.py elite_bridge.py requirements.txt
+          git commit -m "Final Clean Deployment"
+          
+          # 5. Force push to HF
           git push --force https://KarthikeyanS2006:$HF_TOKEN@huggingface.co/spaces/KarthikeyanS2006/OpenMythos-Guardian main
