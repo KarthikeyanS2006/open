@@ -1,0 +1,44 @@
+import json
+import random
+
+targets = ["university.edu", "bank-internal.local", "corp-web-01.com", "gov-portal.in", "research-db.org"]
+tools = ["nmap", "dirsearch", "nikto", "sqlmap", "subfinder"]
+failure_messages = [
+    "0 hosts up (filtered by firewall)", 
+    "Connection timed out", 
+    "403 Forbidden", 
+    "No open ports detected",
+    "ERROR: Command already executed"
+]
+
+dataset = []
+
+for i in range(500):
+    target = random.choice(targets)
+    tool = random.choice(tools)
+    fail = random.choice(failure_messages)
+    
+    # The logic: If Tool A fails, what is the smart Pivot?
+    if tool == "nmap":
+        pivot_thought = "Standard nmap was blocked. I will pivot to subfinder to map the subdomains instead."
+        pivot_action = f"subfinder -d {target}"
+    elif tool == "dirsearch":
+        pivot_thought = "Directory fuzzing failed. I will try nikto to look for known service vulnerabilities."
+        pivot_action = f"nikto -h {target}"
+    else:
+        pivot_thought = "Previous method failed. I will try a fragmented packet scan to bypass the IDS."
+        pivot_action = f"nmap -f -sS {target}"
+
+    entry = {
+        "instruction": f"Continue the autonomous mission for {target}.",
+        "history": f"[⚙️  ACTION]: {tool} {target}\n[👁️  OBSERVATION]: {fail}",
+        "thought": pivot_thought,
+        "action": pivot_action
+    }
+    dataset.append(entry)
+
+with open("openmythos_failure_training.jsonl", "w") as f:
+    for item in dataset:
+        f.write(json.dumps(item) + "\n")
+
+print("Generated 500 failure-pivot samples for OpenMythos training.")
