@@ -1,5 +1,5 @@
-# OpenMythos Elite Bridge v2.1
-# Upgrade: Self-Correction & Autonomous Trajectory Logic
+# OpenMythos Elite Bridge v2.2
+# Fix: Unified Class Structure + Integrated Loop Hole Detection
 # Built by Karthikeyan for Long Inset Research
 
 import subprocess
@@ -9,7 +9,6 @@ class OpenMythosGuardian:
     def __init__(self):
         # The 'Nervous System' - Stores executed commands to prevent loops
         self.command_history = {}
-        self.max_repeats = 1
         
         self.secure_coding_kb = {
             "buffer overflow": "Use strncpy() or snprintf() to prevent memory corruption.",
@@ -23,29 +22,37 @@ class OpenMythosGuardian:
         print(f"[*] OpenMythos analyzing: {detected_issue}...")
         return self.secure_coding_kb.get(detected_issue.lower(), "General Hardening Required")
 
+    def detect_loop_hole(self, current_action):
+        """Detects if the brain is looping and returns a self-correction prompt."""
+        cmd_clean = current_action.strip().lower()
+        if cmd_clean in self.command_history:
+            return (
+                "CRITICAL: You are attempting to repeat an action that provided no results. "
+                "Analyze why the previous step failed. Is there a firewall? Is the port closed? "
+                "Describe your NEW strategy before executing a different tool."
+            )
+        return None
+
     def execute_autonomous_action(self, command):
         """
         SELF-CORRECTION LAYER:
-        Checks if OpenMythos is repeating itself and forces a pivot.
+        Now uses detect_loop_hole to provide feedback to the model.
         """
-        cmd_clean = command.strip().lower()
-        
-        # Check for repetition
-        if cmd_clean in self.command_history:
-            self.command_history[cmd_clean] += 1
-            return (
-                f"ERROR: OpenMythos Logic Loop Detected. \n"
-                f"Command '{command}' has already been executed. \n"
-                f"RESULT: No new data found. \n"
-                f"ADVICE: Pivot to a different tool or increase scan depth."
-            )
-        
-        # New command execution
+        # 1. Check for loops first
+        loop_error = self.detect_loop_hole(command)
+        if loop_error:
+            # Increment the count so we track how many times it tried to loop
+            self.command_history[command.strip().lower()] += 1
+            return f"ERROR: Logic Loop Detected.\n{loop_error}"
+
+        # 2. New command execution
         try:
             print(f"[⚡] OpenMythos Executing: {command}")
-            # Running with a timeout to prevent hanging the 'Baby' brain
+            # Running with a 60s timeout
             result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, timeout=60).decode()
-            self.command_history[cmd_clean] = 1
+            
+            # Record success in history
+            self.command_history[command.strip().lower()] = 1
             
             if not result.strip():
                 return "OBSERVATION: Tool executed but returned no output. Target may be filtered."
@@ -63,19 +70,18 @@ def run_elite_cycle(target):
     print(f"--- [🛡️ OpenMythos Autonomous Cycle Started: {target}] ---")
     guardian = OpenMythosGuardian()
     
-    # Example Trajectory Logic (This is what your Llama model should output)
+    # This simulates what happens when the model makes a mistake
     trajectory = [
         {"thought": "Initial port discovery", "action": f"nmap -F {target}"},
-        {"thought": "Repeating previous scan (Testing loop detection)", "action": f"nmap -F {target}"}
+        {"thought": "I'm confused, let me try that again", "action": f"nmap -F {target}"}
     ]
     
     for step in trajectory:
         print(f"\n[💭 THOUGHT]: {step['thought']}")
         result = guardian.execute_autonomous_action(step['action'])
-        print(f"[👁️  RESULT]: \n{result[:500]}...") # Printing first 500 chars
+        print(f"[👁️  RESULT]: \n{result[:300]}...") # Printing snippet
         
     return "Cycle Complete"
 
-# Run if called directly
 if __name__ == "__main__":
     run_elite_cycle("alagappauniversity.ac.in")
